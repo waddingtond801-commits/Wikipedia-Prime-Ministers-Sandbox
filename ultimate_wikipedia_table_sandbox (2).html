@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Wikipedia Table Builder & Sandbox</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        wiki: {
+                            bgLight: '#f8f9fa',
+                            cardLight: '#ffffff',
+                            headerLight: '#eaecf0',
+                            borderLight: '#a2a9b1',
+                            textLight: '#202122',
+                            linkLight: '#36c',
+                            
+                            bgDark: '#101418',
+                            cardDark: '#1c2128',
+                            headerDark: '#2d333b',
+                            borderDark: '#373e47',
+                            textDark: '#adbac7',
+                            linkDark: '#539bf5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Wikipedia Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Linux+Libertine:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Lato, Helvetica, Arial, sans-serif;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .wiki-serif {
+            font-family: 'Linux Libertine', Georgia, Times, serif;
+        }
+        
+        /* Authentic Wikipedia Table Layout */
+        table.wikitable {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+            font-size: 0.84rem;
+            line-height: 1.5;
+        }
+        
+        table.wikitable th, table.wikitable td {
+            border: 1px solid #a2a9b1;
+            padding: 7px 10px;
+            vertical-align: middle;
+            position: relative;
+        }
+        
+        .dark table.wikitable th, .dark table.wikitable td {
+            border-color: #373e47;
+        }
+        
+        table.wikitable th {
+            background-color: #eaecf0;
+            text-align: center;
+            font-weight: 600;
+            color: #202122;
+        }
+        
+        .dark table.wikitable th {
+            background-color: #2d333b;
+            color: #adbac7;
+        }
+        
+        .wiki-link {
+            color: #36c;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .wiki-link:hover {
+            text-decoration: underline;
+        }
+        .dark .wiki-link {
+            color: #539bf5;
+        }
+        
+        /* Inline Citation styling directly after name */
+        .wiki-cite {
+            font-size: 0.72em;
+            color: #36c;
+            vertical-align: super;
+            line-height: 0;
+            margin-left: 2px;
+            font-weight: normal;
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .wiki-cite:hover {
+            text-decoration: underline;
+        }
+        .dark .wiki-cite {
+            color: #539bf5;
+        }
+
+        /* Party Stripe Box beside Portrait */
+        .portrait-cell-wrapper {
+            display: flex;
+            align-items: stretch;
+            position: relative;
+            min-height: 125px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .party-bar {
+            width: 10px;
+            flex-shrink: 0;
+            border-radius: 2px 0 0 2px;
+            box-shadow: inset -1px 0 0 rgba(0,0,0,0.15);
+        }
+
+        .portrait-img-box {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            background-color: rgba(0,0,0,0.02);
+        }
+        .dark .portrait-img-box {
+            background-color: rgba(255,255,255,0.02);
+        }
+
+        /* Interactive Cell Hover & Editable Focus */
+        .editable-cell:hover {
+            outline: 2px dashed rgba(59, 130, 246, 0.5);
+            outline-offset: -2px;
+        }
+        .editable-cell:focus {
+            outline: 2px solid #3b82f6 !important;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #444c56;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-wiki-bgLight dark:bg-wiki-bgDark text-wiki-textLight dark:text-wiki-textDark min-h-screen flex flex-col">
+
+    <!-- Header Navbar -->
+    <header class="bg-wiki-cardLight dark:bg-wiki-cardDark border-b border-wiki-borderLight dark:border-wiki-borderDark sticky top-0 z-30 shadow-sm">
+        <div class="max-w-[1700px] mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2 rounded-xl shadow flex items-center justify-center w-10 h-10">
+                    <i class="fa-solid fa-table-cells text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold flex items-center gap-2">
+                        Wikipedia Prime Ministers Sandbox
+                        <span class="text-[10px] bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold px-2 py-0.5 rounded-full border border-blue-500/20">Pro Sandbox v2.0</span>
+                    </h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Customizable Wikipedia list builder with auto-duration & inline citations</p>
+                </div>
+            </div>
+
+            <!-- Top Toolbar Buttons -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-plus"></i> Add Leader
+                </button>
+                <button onclick="toggleSandboxControls()" class="bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-xs font-medium px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 border border-wiki-borderLight dark:border-wiki-borderDark">
+                    <i class="fa-solid fa-sliders"></i> Sandbox Controls
+                </button>
+                <button onclick="openExportModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-code"></i> Export / Code
+                </button>
+                <button onclick="resetData()" class="bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 text-xs font-medium px-3 py-2 rounded-lg transition border border-amber-500/30" title="Reset to Historical Defaults">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+                <div class="h-6 w-[1px] bg-wiki-borderLight dark:bg-wiki-borderDark mx-1"></div>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 transition" title="Toggle Light/Dark Theme">
+                    <i id="themeToggleIcon" class="fa-solid fa-sun"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-[1700px] w-full mx-auto px-4 py-6 flex flex-col gap-6">
+        
+        <!-- Collapsible Controls Dashboard -->
+        <div id="sandboxControlPanel" class="bg-wiki-cardLight dark:bg-wiki-cardDark border border-wiki-borderLight dark:border-wiki-borderDark rounded-xl p-5 shadow-sm transition-all duration-300">
+            <div class="flex items-center justify-between border-b border-wiki-borderLight dark:border-wiki-borderDark pb-3 mb-4">
+                <h3 class="text-sm font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-blue-500"></i> Sandbox Settings & Global Preferences
+                </h3>
+                <span class="text-xs text-gray-500">Toggle Party Bar, Auto-Duration & Column Layouts</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Search -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Search Table Data</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-gray-400"></i>
+                        <input type="text" id="tableSearch" oninput="renderTable()" placeholder="Search leader, party, cabinet..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Party Bar Width -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Party Color Stripe (Portrait)</label>
+                    <select id="partyBarToggle" onchange="renderTable()" class="w-full py-1.5 px-3 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="show">Standard Stripe (10px)</option>
+                        <option value="thick">Thick Stripe (16px)</option>
+                        <option value="hide">Disabled</option>
+                    </select>
+                </div>
+
+                <!-- Duration Calculation Mode -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Duration Calculation</label>
+                    <select id="durationCalcMode" onchange="renderTable()" class="w-full py-1.5 px-3 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="auto">Automatic (Calculated from Dates)</option>
+                        <option value="manual">Use Manual Strings (with Footnotes)</option>
+                    </select>
+                </div>
+
+                <!-- Column Settings -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Column Visibility</label>
+                    <button onclick="openColumnModal()" class="w-full py-1.5 px-3 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <span>Reorder / Toggle Columns</span>
+                        <i class="fa-solid fa-columns text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wikipedia Article Display Card -->
+        <div class="bg-wiki-cardLight dark:bg-wiki-cardDark border border-wiki-borderLight dark:border-wiki-borderDark rounded-xl p-6 shadow-sm">
+            
+            <!-- Article Title Header -->
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-wiki-borderLight dark:border-wiki-borderDark pb-4 mb-2">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 id="articleTitle" class="text-2xl font-normal wiki-serif tracking-tight">
+                            List of prime ministers of Great Britain or the United Kingdom since 1721
+                        </h2>
+                        <button onclick="editTitle()" class="text-xs text-wiki-linkLight dark:text-wiki-linkDark hover:underline ml-2" title="Edit Article Title">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <span>From Wikipedia, the free encyclopedia</span>
+                        <span>•</span>
+                        <button onclick="toggleTableCollapse()" class="text-wiki-linkLight dark:text-wiki-linkDark font-semibold">
+                            [<span id="collapseToggleBtn">hide</span>]
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                    <span class="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full border border-wiki-borderLight dark:border-wiki-borderDark">
+                        <i class="fa-solid fa-users-gear text-blue-500 mr-1"></i> <strong id="totalCountDisplay" class="text-wiki-textLight dark:text-wiki-textDark">0</strong> Leaders Listed
+                    </span>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div id="tableContainer" class="overflow-x-auto mt-4 rounded-lg border border-wiki-borderLight dark:border-wiki-borderDark transition-all">
+                <table id="mainWikiTable" class="wikitable">
+                    <!-- Table rendered dynamically -->
+                </table>
+            </div>
+
+            <!-- Footnotes & References -->
+            <div class="mt-6 pt-4 border-t border-wiki-borderLight dark:border-wiki-borderDark text-xs">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-bookmark text-blue-500"></i> Notes & References
+                    </h4>
+                    <button onclick="addFootnote()" class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline">+ Add Note</button>
+                </div>
+                <ol id="footnotesList" class="list-decimal list-inside space-y-1 text-gray-600 dark:text-gray-400">
+                    <li><span id="note-a"><b>[a]</b> Elections or mandates that confirmed the Prime Minister's parliamentary majority.</span></li>
+                    <li><span id="note-b"><b>[b]</b> Official political party affiliation during prime ministerial term.</span></li>
+                    <li><span id="note-c"><b>[c]</b> Created 1st Earl of Orford in 1742 upon resignation.</span></li>
+                    <li><span id="note-d"><b>[d]</b> Died in office during prime ministership.</span></li>
+                </ol>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- EDIT / ADD LEADER MODAL -->
+    <div id="leaderModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs hidden flex items-center justify-center p-4">
+        <div class="bg-wiki-cardLight dark:bg-wiki-cardDark border border-wiki-borderLight dark:border-wiki-borderDark rounded-2xl max-w-3xl w-full p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-3 border-b border-wiki-borderLight dark:border-wiki-borderDark mb-4">
+                <h3 id="modalLeaderTitle" class="text-base font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-user-pen text-blue-500"></i> Edit Prime Minister Entry
+                </h3>
+                <button onclick="closeLeaderModal()" class="text-gray-400 hover:text-gray-200 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="leaderForm" onsubmit="saveLeaderForm(event)" class="space-y-4">
+                <input type="hidden" id="editRowId" value="-1">
+
+                <!-- Prime Minister Name & Inline Citation -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Prime Minister Name</label>
+                        <input type="text" id="mName" required placeholder="Robert Walpole" class="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Inline Citation Ref (e.g. [27])</label>
+                        <input type="text" id="mCite" placeholder="[27]" class="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg font-mono">
+                    </div>
+                </div>
+
+                <!-- Party Color & Stripe Configuration -->
+                <div class="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-wiki-borderLight dark:border-wiki-borderDark space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Party Affiliation & Color Bar</label>
+                        <div class="flex items-center gap-1.5 text-[11px] text-gray-500">
+                            <span>Presets:</span>
+                            <button type="button" onclick="applyPartyPreset('Whig', '#f8e9a1')" class="px-2 py-0.5 rounded bg-[#f8e9a1] text-gray-900 font-semibold text-[10px]">Whig</button>
+                            <button type="button" onclick="applyPartyPreset('Tory', '#0087dc')" class="px-2 py-0.5 rounded bg-[#0087dc] text-white font-semibold text-[10px]">Tory</button>
+                            <button type="button" onclick="applyPartyPreset('Conservative', '#0087dc')" class="px-2 py-0.5 rounded bg-[#0087dc] text-white font-semibold text-[10px]">Con</button>
+                            <button type="button" onclick="applyPartyPreset('Labour', '#e4003b')" class="px-2 py-0.5 rounded bg-[#e4003b] text-white font-semibold text-[10px]">Lab</button>
+                            <button type="button" onclick="applyPartyPreset('Liberal', '#faa61a')" class="px-2 py-0.5 rounded bg-[#faa61a] text-white font-semibold text-[10px]">Lib</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-gray-500 mb-1">Party Name</label>
+                            <input type="text" id="mParty" placeholder="Whig" class="w-full px-3 py-1.5 text-xs bg-white dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-gray-500 mb-1">Party Color Stripe Hex</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" id="mPartyColorPicker" onchange="syncPartyColorInput(this.value)" class="w-8 h-8 p-0.5 rounded cursor-pointer border border-wiki-borderLight dark:border-wiki-borderDark bg-transparent">
+                                <input type="text" id="mPartyColorHex" onchange="syncPartyColorPicker(this.value)" placeholder="#f8e9a1" class="flex-1 px-2 py-1.5 text-xs bg-white dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg font-mono">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-gray-500 mb-1">Portrait Image URL</label>
+                            <div class="flex gap-1.5">
+                                <input type="text" id="mPortraitUrl" placeholder="https://..." class="flex-1 px-2 py-1.5 text-xs bg-white dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                                <label class="cursor-pointer bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 px-2 py-1.5 rounded-lg text-xs flex items-center">
+                                    <i class="fa-solid fa-upload"></i>
+                                    <input type="file" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'mPortraitUrl')">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dates & Auto Duration -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Start Date</label>
+                        <input type="text" id="mStart" required placeholder="3 April 1721" oninput="updateAutoDurationPreview()" class="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">End Date</label>
+                        <input type="text" id="mEnd" required placeholder="11 February 1742" oninput="updateAutoDurationPreview()" class="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Duration (Calculated or Override)</label>
+                        <input type="text" id="mDurationOverride" placeholder="20 years, 315 days" class="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                        <span id="autoCalcPreview" class="text-[10px] text-blue-500 mt-1 block">Auto-calc result: --</span>
+                    </div>
+                </div>
+
+                <!-- Office Details & Mandates -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Office / Constituency Info</label>
+                        <textarea id="mOfficeInfo" rows="2" placeholder="MP for King's Lynn (to 1742)..." class="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Ministerial Offices Held</label>
+                        <textarea id="mOffices" rows="2" placeholder="First Lord of the Treasury&#10;Chancellor of the Exchequer" class="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg"></textarea>
+                    </div>
+                </div>
+
+                <!-- Mandates, Government Cabinet -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Mandate Years (Comma separated)</label>
+                        <input type="text" id="mMandates" placeholder="1722, 1727, 1734, 1741" class="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Government Cabinet</label>
+                        <input type="text" id="mGov" placeholder="Walpole–Townshend" class="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                    </div>
+                </div>
+
+                <!-- Monarch Section -->
+                <div class="border-t border-wiki-borderLight dark:border-wiki-borderDark pt-3">
+                    <h4 class="text-xs font-bold text-gray-600 dark:text-gray-400 mb-2">Monarch Details</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-gray-500 mb-1">Monarch Name</label>
+                            <input type="text" id="mMonarchName" placeholder="George I" class="w-full px-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-gray-500 mb-1">Monarch Portrait URL</label>
+                            <input type="text" id="mMonarchPortrait" placeholder="https://..." class="w-full px-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-gray-500 mb-1">Monarch Reign</label>
+                            <input type="text" id="mMonarchReign" placeholder="r. 1714–1727" class="w-full px-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-wiki-borderLight dark:border-wiki-borderDark">
+                    <button type="button" onclick="closeLeaderModal()" class="px-4 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-800 rounded-lg hover:bg-gray-300 transition">Cancel</button>
+                    <button type="submit" class="px-5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow transition">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- COLUMN CONFIGURATION MODAL -->
+    <div id="columnModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs hidden flex items-center justify-center p-4">
+        <div class="bg-wiki-cardLight dark:bg-wiki-cardDark border border-wiki-borderLight dark:border-wiki-borderDark rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-wiki-borderLight dark:border-wiki-borderDark mb-4">
+                <h3 class="text-base font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-columns text-blue-500"></i> Configure Columns
+                </h3>
+                <button onclick="closeColumnModal()" class="text-gray-400 hover:text-gray-200 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="columnsList" class="space-y-2 py-2 max-h-[60vh] overflow-y-auto">
+                <!-- Checkboxes generated dynamically -->
+            </div>
+            <div class="flex justify-end pt-4 border-t border-wiki-borderLight dark:border-wiki-borderDark">
+                <button onclick="closeColumnModal()" class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition">Apply Layout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXPORT CODE / JSON MODAL -->
+    <div id="exportModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs hidden flex items-center justify-center p-4">
+        <div class="bg-wiki-cardLight dark:bg-wiki-cardDark border border-wiki-borderLight dark:border-wiki-borderDark rounded-2xl max-w-3xl w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between pb-3 border-b border-wiki-borderLight dark:border-wiki-borderDark mb-4">
+                <h3 class="text-base font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-code text-blue-500"></i> Export Wikipedia Code & JSON Data
+                </h3>
+                <button onclick="closeExportModal()" class="text-gray-400 hover:text-gray-200 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-wiki-borderLight dark:border-wiki-borderDark mb-4">
+                <button onclick="switchExportTab('html')" id="tabHtmlBtn" class="px-4 py-2 text-xs font-semibold border-b-2 border-blue-500 text-blue-600 dark:text-blue-400">Wikipedia HTML Code</button>
+                <button onclick="switchExportTab('json')" id="tabJsonBtn" class="px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700">JSON State Payload</button>
+            </div>
+
+            <div id="tabHtmlContent" class="space-y-3">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Export clean, responsive HTML markup compatible with MediaWiki HTML renderer:</p>
+                <textarea id="exportHtmlArea" readonly rows="10" class="w-full p-3 font-mono text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg text-emerald-600 dark:text-emerald-400 focus:outline-none"></textarea>
+                <button onclick="copyToClipboard('exportHtmlArea')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-copy"></i> Copy HTML
+                </button>
+            </div>
+
+            <div id="tabJsonContent" class="space-y-3 hidden">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Import or backup complete state payload:</p>
+                <textarea id="exportJsonArea" rows="10" class="w-full p-3 font-mono text-xs bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg text-blue-600 dark:text-blue-400 focus:outline-none"></textarea>
+                <div class="flex gap-2">
+                    <button onclick="copyToClipboard('exportJsonArea')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-copy"></i> Copy JSON
+                    </button>
+                    <button onclick="importJsonData()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-import"></i> Load / Replace
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-4 border-t border-wiki-borderLight dark:border-wiki-borderDark mt-4">
+                <button onclick="closeExportModal()" class="px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-800 rounded-lg hover:bg-gray-300 transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initial Historical Data Dataset
+        const defaultLeaders = [
+            {
+                id: "pm_1",
+                name: "Robert Walpole",
+                cite: "[27]",
+                portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Sir_Robert_Walpole_by_Jean-Baptiste_Van_Loo_%28cropped%29.jpg/220px-Sir_Robert_Walpole_by_Jean-Baptiste_Van_Loo_%28cropped%29.jpg",
+                officeInfo: "MP for King's Lynn (to 1742)<br>1st Earl of Orford (from 1742)<sup class='wiki-cite'>[c]</sup><br>(1676–1745)",
+                startDate: "3 April 1721",
+                endDate: "11 February 1742",
+                durationOverride: "20 years, 315 days",
+                mandates: ["1722", "1727", "1734", "1741"],
+                ministerialOffices: "Chancellor of the Exchequer<br>First Lord of the Treasury<br>Leader of the House of Commons",
+                party: "Whig",
+                partyColor: "#f8e9a1", // Whig buff / gold
+                government: "Walpole–Townshend",
+                monarchName: "George I",
+                monarchPortrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/King_George_I_by_Sir_Godfrey_Kneller%2C_Bt.jpg/180px-King_George_I_by_Sir_Godfrey_Kneller%2C_Bt.jpg",
+                monarchReign: "r. 1714–1727"
+            },
+            {
+                id: "pm_2",
+                name: "Spencer Compton",
+                cite: "[28]",
+                portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Spencer_Compton%2C_1st_Earl_of_Wilmington_by_Sir_Godfrey_Kneller%2C_Bt.jpg/220px-Spencer_Compton%2C_1st_Earl_of_Wilmington_by_Sir_Godfrey_Kneller%2C_Bt.jpg",
+                officeInfo: "1st Earl of Wilmington<br>(1673–1743)",
+                startDate: "16 February 1742",
+                endDate: "2 July 1743",
+                durationOverride: "1 year, 137 days<sup class='wiki-cite'>[d]</sup>",
+                mandates: ["—"],
+                ministerialOffices: "First Lord of the Treasury",
+                party: "Whig",
+                partyColor: "#f8e9a1",
+                government: "Carteret",
+                monarchName: "George II",
+                monarchPortrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/King_George_II_by_Thomas_Hudson.jpg/180px-King_George_II_by_Thomas_Hudson.jpg",
+                monarchReign: "r. 1727–1760"
+            },
+            {
+                id: "pm_3",
+                name: "Henry Pelham",
+                cite: "[29]",
+                portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Henry_Pelham_by_William_Hoare.jpg/220px-Henry_Pelham_by_William_Hoare.jpg",
+                officeInfo: "MP for Sussex<br>(1694–1754)",
+                startDate: "27 August 1743",
+                endDate: "6 March 1754",
+                durationOverride: "10 years, 192 days<sup class='wiki-cite'>[d]</sup>",
+                mandates: ["—", "1747"],
+                ministerialOffices: "Chancellor of the Exchequer<br>First Lord of the Treasury<br>Leader of the House of Commons",
+                party: "Whig",
+                partyColor: "#f8e9a1",
+                government: "Broad Bottom I",
+                monarchName: "George II",
+                monarchPortrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/King_George_II_by_Thomas_Hudson.jpg/180px-King_George_II_by_Thomas_Hudson.jpg",
+                monarchReign: "r. 1727–1760"
+            },
+            {
+                id: "pm_4",
+                name: "Thomas Pelham-Holles",
+                cite: "[30]",
+                portrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Thomas_Pelham-Holles%2C_1st_Duke_of_Newcastle_by_William_Hoare.jpg/220px-Thomas_Pelham-Holles%2C_1st_Duke_of_Newcastle_by_William_Hoare.jpg",
+                officeInfo: "1st Duke of Newcastle<br>(1693–1768)",
+                startDate: "16 March 1754",
+                endDate: "11 November 1756",
+                durationOverride: "",
+                mandates: ["1754"],
+                ministerialOffices: "First Lord of the Treasury<br>Leader of the House of Lords",
+                party: "Whig",
+                partyColor: "#f8e9a1",
+                government: "Newcastle I",
+                monarchName: "George II",
+                monarchPortrait: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/King_George_II_by_Thomas_Hudson.jpg/180px-King_George_II_by_Thomas_Hudson.jpg",
+                monarchReign: "r. 1727–1760"
+            }
+        ];
+
+        // Dynamic Columns Definition
+        let columns = [
+            { id: 'portrait', label: 'Portrait', visible: true },
+            { id: 'leaderInfo', label: 'Prime minister Office (Lifespan)', visible: true },
+            { id: 'startDate', label: 'Start', visible: true },
+            { id: 'endDate', label: 'End', visible: true },
+            { id: 'duration', label: 'Duration', visible: true },
+            { id: 'mandate', label: 'Mandate [a]', visible: true },
+            { id: 'ministerial', label: 'Ministerial offices held as prime minister', visible: true },
+            { id: 'party', label: 'Party [b]', visible: true },
+            { id: 'government', label: 'Government', visible: true },
+            { id: 'monarch', label: 'Monarch Reign', visible: true },
+            { id: 'actions', label: 'Actions', visible: true }
+        ];
+
+        // State Variables
+        let leadersData = [];
+        let articleTitleStr = "List of prime ministers of Great Britain or the United Kingdom since 1721";
+        let isCollapsed = false;
+
+        window.onload = function() {
+            loadState();
+            renderTable();
+            renderColumnsModalList();
+        };
+
+        function saveState() {
+            localStorage.setItem('wikibox_v2_leaders', JSON.stringify(leadersData));
+            localStorage.setItem('wikibox_v2_cols', JSON.stringify(columns));
+            localStorage.setItem('wikibox_v2_title', articleTitleStr);
+        }
+
+        function loadState() {
+            const sL = localStorage.getItem('wikibox_v2_leaders');
+            const sC = localStorage.getItem('wikibox_v2_cols');
+            const sT = localStorage.getItem('wikibox_v2_title');
+
+            if (sL) {
+                try { leadersData = JSON.parse(sL); } catch(e) { leadersData = JSON.parse(JSON.stringify(defaultLeaders)); }
+            } else {
+                leadersData = JSON.parse(JSON.stringify(defaultLeaders));
+            }
+
+            if (sC) {
+                try { columns = JSON.parse(sC); } catch(e) {}
+            }
+
+            if (sT) {
+                articleTitleStr = sT;
+                document.getElementById('articleTitle').innerText = articleTitleStr;
+            }
+        }
+
+        // Automatic Duration Calculator from Start to End Date
+        function calculateDuration(startStr, endStr) {
+            if (!startStr) return '—';
+            
+            const startDate = new Date(startStr);
+            let endDate;
+
+            if (!endStr || endStr.toLowerCase().includes('present') || endStr.toLowerCase().includes('incumbent')) {
+                endDate = new Date();
+            } else {
+                endDate = new Date(endStr);
+            }
+
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                return '—';
+            }
+
+            let years = endDate.getFullYear() - startDate.getFullYear();
+            let months = endDate.getMonth() - startDate.getMonth();
+            let days = endDate.getDate() - startDate.getDate();
+
+            if (days < 0) {
+                months--;
+                const prevMonthLastDay = new Date(endDate.getFullYear(), endDate.getMonth(), 0).getDate();
+                days += prevMonthLastDay;
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            const totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+            
+            if (years > 0) {
+                const remainingDays = totalDays - (years * 365);
+                const displayDays = remainingDays > 0 ? remainingDays : days;
+                return `${years} year${years > 1 ? 's' : ''}, ${displayDays} day${displayDays !== 1 ? 's' : ''}`;
+            } else {
+                return `${totalDays} day${totalDays !== 1 ? 's' : ''}`;
+            }
+        }
+
+        function updateAutoDurationPreview() {
+            const s = document.getElementById('mStart').value;
+            const e = document.getElementById('mEnd').value;
+            const res = calculateDuration(s, e);
+            document.getElementById('autoCalcPreview').innerText = `Auto-calc result: ${res}`;
+        }
+
+        function renderTable() {
+            const table = document.getElementById('mainWikiTable');
+            const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
+            const partyBarSetting = document.getElementById('partyBarToggle').value;
+            const durationMode = document.getElementById('durationCalcMode').value;
+
+            let filtered = leadersData.filter(item => {
+                return item.name.toLowerCase().includes(searchTerm) ||
+                       (item.party && item.party.toLowerCase().includes(searchTerm)) ||
+                       (item.government && item.government.toLowerCase().includes(searchTerm)) ||
+                       (item.monarchName && item.monarchName.toLowerCase().includes(searchTerm));
+            });
+
+            document.getElementById('totalCountDisplay').innerText = filtered.length;
+
+            // Generate Header
+            let html = '<thead><tr>';
+            columns.forEach(col => {
+                if (col.visible) {
+                    html += `<th>${col.label}</th>`;
+                }
+            });
+            html += '</tr></thead><tbody>';
+
+            if (filtered.length === 0) {
+                html += `<tr><td colspan="${columns.filter(c=>c.visible).length}" class="text-center py-6 text-gray-500">No matching leader records found.</td></tr>`;
+            }
+
+            filtered.forEach((item, index) => {
+                const origIdx = leadersData.findIndex(l => l.id === item.id);
+                const barWidth = partyBarSetting === 'thick' ? 'w-4' : 'w-2.5';
+                const calcDuration = calculateDuration(item.startDate, item.endDate);
+                const finalDuration = (durationMode === 'manual' && item.durationOverride) ? item.durationOverride : (item.durationOverride || calcDuration);
+
+                html += `<tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/40 transition">`;
+
+                columns.forEach(col => {
+                    if (!col.visible) return;
+
+                    switch (col.id) {
+                        case 'portrait':
+                            html += `<td class="p-0 border border-wiki-borderLight dark:border-wiki-borderDark w-28">
+                                <div class="portrait-cell-wrapper">
+                                    ${partyBarSetting !== 'hide' ? `<div class="party-bar ${barWidth}" style="background-color: ${item.partyColor || '#a2a9b1'};" title="Party: ${item.party}"></div>` : ''}
+                                    <div class="portrait-img-box">
+                                        <img src="${item.portrait}" alt="${item.name}" class="w-16 h-20 object-cover rounded shadow-xs" onerror="this.src='https://placehold.co/120x160/eee/333?text=No+Photo'">
+                                    </div>
+                                </div>
+                            </td>`;
+                            break;
+
+                        case 'leaderInfo':
+                            // Citations placed DIRECTLY next to Prime Minister's Name
+                            html += `<td class="border border-wiki-borderLight dark:border-wiki-borderDark">
+                                <div>
+                                    <span class="wiki-link font-bold text-sm" onclick="openEditModal(${origIdx})">${item.name}</span>
+                                    ${item.cite ? `<a href="#note-c" class="wiki-cite">${item.cite}</a>` : ''}
+                                    <div class="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-snug">${item.officeInfo || ''}</div>
+                                </div>
+                            </td>`;
+                            break;
+
+                        case 'startDate':
+                            html += `<td class="text-center text-xs border border-wiki-borderLight dark:border-wiki-borderDark whitespace-nowrap">${item.startDate || ''}</td>`;
+                            break;
+
+                        case 'endDate':
+                            html += `<td class="text-center text-xs border border-wiki-borderLight dark:border-wiki-borderDark whitespace-nowrap">${item.endDate || ''}</td>`;
+                            break;
+
+                        case 'duration':
+                            html += `<td class="text-center text-xs border border-wiki-borderLight dark:border-wiki-borderDark font-mono">${finalDuration}</td>`;
+                            break;
+
+                        case 'mandate':
+                            const mandates = Array.isArray(item.mandates) ? item.mandates : [item.mandates];
+                            html += `<td class="text-center border border-wiki-borderLight dark:border-wiki-borderDark bg-amber-50/50 dark:bg-amber-950/20">
+                                <div class="flex flex-col gap-1 items-center">
+                                    ${mandates.map(m => `<span class="wiki-link text-xs">${m}</span>`).join('')}
+                                </div>
+                            </td>`;
+                            break;
+
+                        case 'ministerial':
+                            html += `<td class="text-xs border border-wiki-borderLight dark:border-wiki-borderDark text-gray-700 dark:text-gray-300">${item.ministerialOffices || ''}</td>`;
+                            break;
+
+                        case 'party':
+                            html += `<td class="text-center text-xs border border-wiki-borderLight dark:border-wiki-borderDark font-medium" style="background-color: ${adjustHexAlpha(item.partyColor || '#f8e9a1', 0.2)}">
+                                <span class="wiki-link">${item.party || ''}</span>
+                            </td>`;
+                            break;
+
+                        case 'government':
+                            html += `<td class="text-center text-xs border border-wiki-borderLight dark:border-wiki-borderDark">
+                                <span class="wiki-link">${item.government || ''}</span>
+                            </td>`;
+                            break;
+
+                        case 'monarch':
+                            html += `<td class="text-center border border-wiki-borderLight dark:border-wiki-borderDark bg-amber-50/30 dark:bg-amber-950/10">
+                                <div class="flex flex-col items-center gap-1 p-1">
+                                    <span class="wiki-link font-semibold text-xs">${item.monarchName || ''}</span>
+                                    <img src="${item.monarchPortrait}" alt="${item.monarchName}" class="w-12 h-16 object-cover rounded shadow-xs" onerror="this.src='https://placehold.co/100x130/eee/333?text=Monarch'">
+                                    <span class="text-[10px] text-gray-500">${item.monarchReign || ''}</span>
+                                </div>
+                            </td>`;
+                            break;
+
+                        case 'actions':
+                            html += `<td class="text-center border border-wiki-borderLight dark:border-wiki-borderDark">
+                                <div class="flex items-center justify-center gap-1">
+                                    <button onclick="openEditModal(${origIdx})" class="p-1.5 bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 rounded hover:bg-blue-200 transition" title="Edit Entry">
+                                        <i class="fa-solid fa-pen text-xs"></i>
+                                    </button>
+                                    <button onclick="moveRow(${origIdx}, -1)" class="p-1.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 transition" title="Move Up">
+                                        <i class="fa-solid fa-arrow-up text-xs"></i>
+                                    </button>
+                                    <button onclick="moveRow(${origIdx}, 1)" class="p-1.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 transition" title="Move Down">
+                                        <i class="fa-solid fa-arrow-down text-xs"></i>
+                                    </button>
+                                    <button onclick="deleteRow(${origIdx})" class="p-1.5 bg-red-100 dark:bg-red-900/60 text-red-600 dark:text-red-300 rounded hover:bg-red-200 transition" title="Delete Entry">
+                                        <i class="fa-solid fa-trash text-xs"></i>
+                                    </button>
+                                </div>
+                            </td>`;
+                            break;
+                    }
+                });
+
+                html += `</tr>`;
+            });
+
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+        // Modal Action Functions
+        function openAddModal() {
+            document.getElementById('modalLeaderTitle').innerHTML = '<i class="fa-solid fa-user-plus text-blue-500"></i> Add Prime Minister';
+            document.getElementById('editRowId').value = "-1";
+            document.getElementById('leaderForm').reset();
+            document.getElementById('mPartyColorPicker').value = "#f8e9a1";
+            document.getElementById('mPartyColorHex').value = "#f8e9a1";
+            document.getElementById('autoCalcPreview').innerText = "Auto-calc result: --";
+            document.getElementById('leaderModal').classList.remove('hidden');
+        }
+
+        function openEditModal(index) {
+            const item = leadersData[index];
+            document.getElementById('modalLeaderTitle').innerHTML = '<i class="fa-solid fa-user-pen text-blue-500"></i> Edit Prime Minister';
+            document.getElementById('editRowId').value = index;
+
+            document.getElementById('mName').value = item.name || '';
+            document.getElementById('mCite').value = item.cite || '';
+            document.getElementById('mPortraitUrl').value = item.portrait || '';
+            document.getElementById('mPartyColorPicker').value = item.partyColor || '#f8e9a1';
+            document.getElementById('mPartyColorHex').value = item.partyColor || '#f8e9a1';
+            document.getElementById('mStart').value = item.startDate || '';
+            document.getElementById('mEnd').value = item.endDate || '';
+            document.getElementById('mDurationOverride').value = item.durationOverride || '';
+            document.getElementById('mOfficeInfo').value = item.officeInfo ? item.officeInfo.replace(/<br\s*[\/]?>/gi, '\n') : '';
+            document.getElementById('mOffices').value = item.ministerialOffices ? item.ministerialOffices.replace(/<br\s*[\/]?>/gi, '\n') : '';
+            document.getElementById('mMandates').value = Array.isArray(item.mandates) ? item.mandates.join(', ') : item.mandates || '';
+            document.getElementById('mParty').value = item.party || '';
+            document.getElementById('mGov').value = item.government ? item.government.replace(/<br\s*[\/]?>/gi, '\n') : '';
+            document.getElementById('mMonarchName').value = item.monarchName || '';
+            document.getElementById('mMonarchPortrait').value = item.monarchPortrait || '';
+            document.getElementById('mMonarchReign').value = item.monarchReign || '';
+
+            updateAutoDurationPreview();
+            document.getElementById('leaderModal').classList.remove('hidden');
+        }
+
+        function closeLeaderModal() {
+            document.getElementById('leaderModal').classList.add('hidden');
+        }
+
+        function saveLeaderForm(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('editRowId').value);
+            const mandatesRaw = document.getElementById('mMandates').value;
+            const mandatesArr = mandatesRaw.includes(',') ? mandatesRaw.split(',').map(m=>m.trim()) : [mandatesRaw];
+
+            const itemData = {
+                id: index >= 0 ? leadersData[index].id : 'pm_' + Date.now(),
+                name: document.getElementById('mName').value,
+                cite: document.getElementById('mCite').value,
+                portrait: document.getElementById('mPortraitUrl').value,
+                partyColor: document.getElementById('mPartyColorHex').value,
+                startDate: document.getElementById('mStart').value,
+                endDate: document.getElementById('mEnd').value,
+                durationOverride: document.getElementById('mDurationOverride').value,
+                officeInfo: document.getElementById('mOfficeInfo').value.replace(/\n/g, '<br>'),
+                ministerialOffices: document.getElementById('mOffices').value.replace(/\n/g, '<br>'),
+                mandates: mandatesArr,
+                party: document.getElementById('mParty').value,
+                government: document.getElementById('mGov').value.replace(/\n/g, '<br>'),
+                monarchName: document.getElementById('mMonarchName').value,
+                monarchPortrait: document.getElementById('mMonarchPortrait').value,
+                monarchReign: document.getElementById('mMonarchReign').value
+            };
+
+            if (index >= 0) {
+                leadersData[index] = itemData;
+            } else {
+                leadersData.push(itemData);
+            }
+
+            saveState();
+            renderTable();
+            closeLeaderModal();
+            showToast("Leader record updated!");
+        }
+
+        function deleteRow(index) {
+            if (confirm(`Remove ${leadersData[index].name} from sandbox?`)) {
+                leadersData.splice(index, 1);
+                saveState();
+                renderTable();
+                showToast("Record deleted.");
+            }
+        }
+
+        function moveRow(index, dir) {
+            const newIndex = index + dir;
+            if (newIndex < 0 || newIndex >= leadersData.length) return;
+            const temp = leadersData[index];
+            leadersData[index] = leadersData[newIndex];
+            leadersData[newIndex] = temp;
+            saveState();
+            renderTable();
+        }
+
+        // Preset Party Helpers
+        function applyPartyPreset(name, color) {
+            document.getElementById('mParty').value = name;
+            document.getElementById('mPartyColorPicker').value = color;
+            document.getElementById('mPartyColorHex').value = color;
+        }
+
+        function syncPartyColorInput(val) {
+            document.getElementById('mPartyColorHex').value = val;
+        }
+
+        function syncPartyColorPicker(val) {
+            if (/^#[0-9A-F]{6}$/i.test(val)) {
+                document.getElementById('mPartyColorPicker').value = val;
+            }
+        }
+
+        // Column Config
+        function openColumnModal() {
+            renderColumnsModalList();
+            document.getElementById('columnModal').classList.remove('hidden');
+        }
+
+        function closeColumnModal() {
+            document.getElementById('columnModal').classList.add('hidden');
+            renderTable();
+            saveState();
+        }
+
+        function renderColumnsModalList() {
+            const container = document.getElementById('columnsList');
+            let html = '';
+            columns.forEach((col, idx) => {
+                html += `<div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900 border border-wiki-borderLight dark:border-wiki-borderDark rounded-lg">
+                    <label class="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                        <input type="checkbox" ${col.visible ? 'checked' : ''} onchange="toggleColVisible(${idx})" class="rounded text-blue-600">
+                        ${col.label}
+                    </label>
+                    <div class="flex gap-1">
+                        ${idx > 0 ? `<button onclick="moveColumn(${idx}, -1)" class="p-1 text-gray-400 hover:text-blue-500"><i class="fa-solid fa-arrow-up text-[10px]"></i></button>` : ''}
+                        ${idx < columns.length - 1 ? `<button onclick="moveColumn(${idx}, 1)" class="p-1 text-gray-400 hover:text-blue-500"><i class="fa-solid fa-arrow-down text-[10px]"></i></button>` : ''}
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function toggleColVisible(idx) {
+            columns[idx].visible = !columns[idx].visible;
+        }
+
+        function moveColumn(idx, dir) {
+            const target = idx + dir;
+            if (target < 0 || target >= columns.length) return;
+            const temp = columns[idx];
+            columns[idx] = columns[target];
+            columns[target] = temp;
+            renderColumnsModalList();
+        }
+
+        // Footnotes
+        function addFootnote() {
+            const list = document.getElementById('footnotesList');
+            const noteText = prompt("Enter reference note text:");
+            if (noteText) {
+                const count = list.children.length + 1;
+                const li = document.createElement('li');
+                li.innerHTML = `<span><b>[note]</b> ${noteText}</span>`;
+                list.appendChild(li);
+            }
+        }
+
+        // Export/Import Modal
+        function openExportModal() {
+            const tableElem = document.getElementById('mainWikiTable');
+            document.getElementById('exportHtmlArea').value = tableElem.outerHTML;
+            document.getElementById('exportJsonArea').value = JSON.stringify({ leadersData, columns, articleTitleStr }, null, 2);
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function switchExportTab(tab) {
+            if (tab === 'html') {
+                document.getElementById('tabHtmlContent').classList.remove('hidden');
+                document.getElementById('tabJsonContent').classList.add('hidden');
+                document.getElementById('tabHtmlBtn').className = "px-4 py-2 text-xs font-semibold border-b-2 border-blue-500 text-blue-600 dark:text-blue-400";
+                document.getElementById('tabJsonBtn').className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700";
+            } else {
+                document.getElementById('tabHtmlContent').classList.add('hidden');
+                document.getElementById('tabJsonContent').classList.remove('hidden');
+                document.getElementById('tabJsonBtn').className = "px-4 py-2 text-xs font-semibold border-b-2 border-blue-500 text-blue-600 dark:text-blue-400";
+                document.getElementById('tabHtmlBtn').className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-700";
+            }
+        }
+
+        function importJsonData() {
+            try {
+                const parsed = JSON.parse(document.getElementById('exportJsonArea').value);
+                if (parsed.leadersData) leadersData = parsed.leadersData;
+                if (parsed.columns) columns = parsed.columns;
+                if (parsed.articleTitleStr) articleTitleStr = parsed.articleTitleStr;
+                saveState();
+                renderTable();
+                closeExportModal();
+                showToast("Sandbox data loaded!");
+            } catch(e) {
+                alert("Invalid JSON data format.");
+            }
+        }
+
+        // Global UI Toggles
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeToggleIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = "fa-solid fa-moon";
+            } else {
+                html.classList.add('dark');
+                icon.className = "fa-solid fa-sun";
+            }
+        }
+
+        function toggleSandboxControls() {
+            document.getElementById('sandboxControlPanel').classList.toggle('hidden');
+        }
+
+        function toggleTableCollapse() {
+            const container = document.getElementById('tableContainer');
+            const btn = document.getElementById('collapseToggleBtn');
+            isCollapsed = !isCollapsed;
+            if (isCollapsed) {
+                container.classList.add('hidden');
+                btn.innerText = "show";
+            } else {
+                container.classList.remove('hidden');
+                btn.innerText = "hide";
+            }
+        }
+
+        function editTitle() {
+            const val = prompt("Enter Wikipedia Article Title:", articleTitleStr);
+            if (val) {
+                articleTitleStr = val;
+                document.getElementById('articleTitle').innerText = articleTitleStr;
+                saveState();
+            }
+        }
+
+        function resetData() {
+            if (confirm("Reset table to historical 1721 default data?")) {
+                leadersData = JSON.parse(JSON.stringify(defaultLeaders));
+                saveState();
+                renderTable();
+                showToast("Table reset to defaults.");
+            }
+        }
+
+        function handleImageUpload(e, targetId) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    document.getElementById(targetId).value = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function adjustHexAlpha(hex, alpha) {
+            if (!hex || !hex.startsWith('#')) return 'transparent';
+            let c = hex.substring(1);
+            if (c.length === 3) c = c.split('').map(x=>x+x).join('');
+            const num = parseInt(c, 16);
+            const r = (num >> 16) & 255;
+            const g = (num >> 8) & 255;
+            const b = num & 255;
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            el.select();
+            document.execCommand('copy');
+            showToast("Copied to clipboard!");
+        }
+
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = "fixed bottom-5 right-5 bg-gray-900 text-white dark:bg-white dark:text-gray-900 px-4 py-2 rounded-xl text-xs font-semibold shadow-2xl z-50 flex items-center gap-2 animate-bounce";
+            t.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> ${msg}`;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+    </script>
+</body>
+</html>
